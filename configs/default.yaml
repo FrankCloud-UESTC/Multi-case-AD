@@ -1,0 +1,41 @@
+# Default training configuration
+model:
+  in_channels: 3
+  feature_dim: 512
+  key_dim: 512
+  memory_size: 20
+
+data:
+  dataset_type: ECPT
+  dataset_path: ./dataset/ECPT/new_training/frame_A0004_least
+  class_name: frame_A0004_least
+  resize_height: 128
+  resize_width: 128
+
+optim:
+  learning_rate: 1.0e-4
+  weight_decay: 0.0
+  scheduler: cosine
+  t_max: 30
+  grad_clip_norm: null
+
+memory:
+  n_clusters: 10
+  triplet_margin_normal: 0.8
+  triplet_margin_defect: 1.0
+  defect_mse_threshold: 0.01
+  max_memory_size: 150
+  prune_count: 50
+
+epochs: 30
+batch_size: 1
+loss_compact: 0.5
+loss_separate: 0.5
+
+device: auto
+amp: false
+seed: 2023
+num_workers: 0
+
+exp_dir: exp
+log_interval: 10
