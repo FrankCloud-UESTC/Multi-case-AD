@@ -1,11 +1,20 @@
-"""Evaluation entry point.
+"""Evaluation entry point with multi-backend inference support.
 
 Usage:
-    # With YAML config:
-    python evaluate.py --config configs/eval.yaml
+    # Standard PyTorch inference
+    python Evaluate.py --model_dir model.pth --m_items_dir keys.pt
 
-    # With CLI overrides:
-    python evaluate.py --model_dir exp/ECPT/log/checkpoint_best.pth --m_items_dir exp/ECPT/log/keys.pt
+    # PyTorch + AMP (FP16 on GPU)
+    python Evaluate.py --model_dir model.pth --m_items_dir keys.pt --amp
+
+    # ONNX Runtime inference
+    python Evaluate.py --model_dir model.pth --m_items_dir keys.pt --backend onnx
+
+    # torch.compile inference
+    python Evaluate.py --model_dir model.pth --m_items_dir keys.pt --backend compile
+
+    # Dynamic INT8 quantization (CPU)
+    python Evaluate.py --model_dir model.pth --m_items_dir keys.pt --backend quantize
 """
 
 from __future__ import annotations
@@ -28,6 +37,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dataset_path", type=str, default=None)
     parser.add_argument("--output_dir", type=str, default=None)
     parser.add_argument("--device", type=str, default=None)
+    parser.add_argument("--amp", action="store_true", default=None, help="Enable AMP (FP16) inference")
+    parser.add_argument(
+        "--backend", type=str, default=None,
+        choices=["pytorch", "onnx", "compile", "quantize"],
+        help="Inference backend",
+    )
     return parser.parse_args()
 
 
@@ -51,6 +66,10 @@ def main() -> None:
         config.output_dir = args.output_dir
     if args.device is not None:
         config.device = args.device
+    if args.amp is not None:
+        config.amp = args.amp
+    if args.backend is not None:
+        config.backend = args.backend
 
     # Setup logging
     setup_logging(level=logging.INFO)

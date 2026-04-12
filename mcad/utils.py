@@ -26,6 +26,14 @@ def resolve_device(device_spec: str) -> torch.device:
     return torch.device(device_spec)
 
 
+def get_amp_device_type(device: torch.device) -> str:
+    """Get the appropriate device type string for torch.amp.autocast.
+
+    Returns "cuda" for CUDA devices, "cpu" otherwise.
+    """
+    return "cuda" if device.type == "cuda" else "cpu"
+
+
 def set_seed(seed: int) -> None:
     """Set random seed for reproducibility across all relevant libraries."""
     torch.manual_seed(seed)

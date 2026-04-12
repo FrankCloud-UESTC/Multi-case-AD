@@ -121,6 +121,8 @@ class EvalConfig:
     num_workers: int = 0
 
     device: str = "auto"
+    amp: bool = False  # Enable AMP for inference (FP16 on GPU)
+    backend: str = "pytorch"  # pytorch | onnx | compile | quantize
 
     @classmethod
     def from_yaml(cls, path: str | Path) -> EvalConfig:

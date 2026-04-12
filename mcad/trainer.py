@@ -17,7 +17,7 @@ from tqdm import tqdm
 from mcad.config import TrainConfig
 from mcad.conv_ae import ConvAE
 from mcad.data import AnomalyDataset, build_dataloader
-from mcad.utils import resolve_device, set_seed
+from mcad.utils import resolve_device, set_seed, get_amp_device_type
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +76,8 @@ class Trainer:
         self.mse_loss = nn.MSELoss(reduction="none")
 
         # AMP
-        self.scaler = torch.amp.GradScaler("cuda", enabled=config.amp)
+        self.amp_device_type = get_amp_device_type(self.device)
+        self.scaler = torch.amp.GradScaler(self.amp_device_type, enabled=config.amp)
 
         # Output directory
         self.exp_dir = Path(config.exp_dir) / config.data.dataset_type / "log"
@@ -180,7 +181,7 @@ class Trainer:
 
             has_defect = labels[0].sum().item() > 0
 
-            with torch.amp.autocast("cuda", enabled=self.config.amp):
+            with torch.amp.autocast(self.amp_device_type, enabled=self.config.amp):
                 outputs, pred, fea, separate_loss, compact_loss, self.m_items, self.defect_memory = (
                     self.model.forward(
                         imgs,
